@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 
+import java.lang.reflect.Method;
+
 import au.edu.rmit.movienightplanner.MainActivity;
 import au.edu.rmit.movienightplanner.model.DAO;
 import au.edu.rmit.movienightplanner.model.Event;
@@ -26,7 +28,6 @@ public class NotificationActionReceiver extends BroadcastReceiver {
     private void doJob(final Context context, Intent intent) {
         int i = intent.getIntExtra("action", -1);
         final Event event = DAO.getEvents().get(intent.getStringExtra("event"));
-        System.out.println("HELLO " + i +" eventID="+event.getId());
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(Integer.parseInt(event.getId()));
         switch (i) {
             case RemindLater:
@@ -36,9 +37,11 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 NotificationJobService.getInstance().dismiss(event);
                 break;
             case Cancel:
+                // collapse notification bar
+                context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
                 AlertDialog.Builder builder=new AlertDialog.Builder(context);
                 builder.setTitle("Tips：");
-                builder.setMessage("Do you want to cancel this event?");
+                builder.setMessage("Do you want to cancel " + event.getTitle() + "?");
 
                 builder.setPositiveButton("No",null);
 
@@ -56,5 +59,6 @@ public class NotificationActionReceiver extends BroadcastReceiver {
         }
 
     }
+
 }
 

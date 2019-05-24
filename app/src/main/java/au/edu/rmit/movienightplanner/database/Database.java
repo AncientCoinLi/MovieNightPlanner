@@ -14,19 +14,14 @@ import au.edu.rmit.movienightplanner.model.EventImpl;
 import au.edu.rmit.movienightplanner.model.Movie;
 import au.edu.rmit.movienightplanner.model.MovieImpl;
 
-import static android.database.sqlite.SQLiteDatabase.openOrCreateDatabase;
 
 
 public class Database {
 
     private static final String DATABASE_NAME = "movie_night_planner.db";
-
-    // TABLE (COLUMN) NAMES
     static final String TABLE_EVENT = "tbl_events";
     static final String TABLE_MOVIE = "tbl_movies";
 
-    // SQL CREATE AND DROP TABLE STATEMENTS
-    // Modified by Caspar to have _ID field which is required by CursorLoader
     private static final String CREATE_EVENT_TABLE = String.format(
             "CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, title TEXT, start TEXT, end" +
                     " TEXT, venue TEXT, location TEXT, attendees TEXT, movieid TEXT);",
@@ -43,8 +38,6 @@ public class Database {
 
     public Database(Activity activity) {
         mDatabase = activity.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
-        //mDatabase.execSQL(CREATE_MOVIE_TABLE);
-        //mDatabase.execSQL(CREATE_EVENT_TABLE);
     }
 
     public boolean checkTableExists() {
@@ -108,11 +101,8 @@ public class Database {
     }
 
     public void writeData(List<Movie> movies, List<Event> events){
-        // delete tables and rewrite new data into database
-        // drop
         mDatabase.execSQL(DROP_EVENT_TABLE);
         mDatabase.execSQL(DROP_MOVIE_TABLE);
-        // create
         mDatabase.execSQL(CREATE_MOVIE_TABLE);
         mDatabase.execSQL(CREATE_EVENT_TABLE);
         for(Movie movie: movies){
@@ -121,7 +111,6 @@ public class Database {
         for (Event event : events) {
             EventUtils.addEvent(mDatabase, event);
         }
-        //mDatabase.close();
     }
 
 

@@ -20,14 +20,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
 import au.edu.rmit.movienightplanner.activity.MapsActivity;
+import au.edu.rmit.movienightplanner.activity.SettingsActivity;
 import au.edu.rmit.movienightplanner.fragment.CalendarFragment;
 import au.edu.rmit.movienightplanner.fragment.EditEventFragment;
 import au.edu.rmit.movienightplanner.fragment.EventDetailFragment;
@@ -68,10 +71,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView bottom_bar_text_calendar;
     private ImageView bottom_bar_image_calendar;
     private RelativeLayout bottom_bar_btn_calendar;
+
+    private ImageView bottom_bar_image_map;
+    private TextView bottom_bar_text_map;
+    private RelativeLayout bottom_bar_btn_map;
+    private TextView bottom_bar_text_setting;
+
+
     private final int movie = 1;
     private final int event = 2;
     private final int calendar = 3;
     private final int map = 4;
+    private final int setting = 5;
+
 
 
     private NetworkInfoReceiver mReceiver;
@@ -86,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -99,8 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         registerNotificationReceiver();
         registerNavigationReceiver();
         initPermission();
-        startSingleNotificationJobService();
-        startLoopNotificationJobService();
     }
 
     private void registerNavigationReceiver() {
@@ -136,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onNewIntent(Intent intent) {
-        System.out.println("onNewIntent()");
         super.onNewIntent(intent);
         int intentType = intent.getIntExtra("type", -1);
         String eventId = intent.getStringExtra("event");
@@ -150,22 +158,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setIntent(intent);
     }
 
-    @Override
-    protected void onStart() {
-        System.out.println("onStart()");
-        super.onStart();
-    }
-
-    @Override
-    protected void onRestart() {
-        System.out.println("onRestart()");
-        super.onRestart();
-    }
-    @Override
-    protected void onResume() {
-        System.out.println("Enter RESUME");
-        super.onResume();
-    }
     private void startSingleNotificationJobService() {
         JobScheduler jobScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         JobInfo.Builder singleBuilder = new JobInfo.Builder(1, new ComponentName(this,
@@ -201,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                               new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                                                       Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         } else {
+            startSingleNotificationJobService();
+            startLoopNotificationJobService();
         }
     }
 
@@ -212,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     startSingleNotificationJobService();
+                    startLoopNotificationJobService();
                 } else {
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                                                                              Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -230,8 +225,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             }
-            case 0:
-                System.out.println("Verify RequestCode");
         }
     }
 
@@ -303,6 +296,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bottom_bar_image_calendar = findViewById(R.id.bottom_bar_image_calendar);
         bottom_bar_btn_calendar = findViewById(R.id.bottom_bar_btn_calendar);
 
+        bottom_bar_text_map = findViewById(R.id.bottom_bar_text_map);
+        bottom_bar_image_map = findViewById(R.id.bottom_bar_image_map);
+        bottom_bar_btn_map = findViewById(R.id.bottom_bar_btn_map);
+
+        bottom_bar_text_setting = findViewById(R.id.bottom_bar_text_setting);
+
         main_bottom_bar = findViewById(R.id.main_bottom_bar);
 
         setListener();
@@ -347,6 +346,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setSelectedStatus(map);
                 Intent intent = new Intent(v.getContext(), MapsActivity.class);
                 v.getContext().startActivity(intent);
+                break;
+            case R.id.bottom_bar_btn_setting:
+                clearBottomImageState();
+                setSelectedStatus(setting);
+                Intent intent1 = new Intent(v.getContext(), SettingsActivity.class);
+                v.getContext().startActivity(intent1);
         }
     }
 
@@ -356,18 +361,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clearBottomImageState();
         currentFragment = i;
         switch (i) {
-            case 1:
+            case movie:
                 bottom_bar_image_movie.setImageResource(R.drawable.movie_button_selected);
                 bottom_bar_text_movie.setTextColor(Color.parseColor("#0097f7"));
                 break;
-            case 2:
+            case event:
                 bottom_bar_image_event.setImageResource(R.drawable.event_button_seleted);
                 bottom_bar_text_event.setTextColor(Color.parseColor("#0097f7"));
                 break;
-            case 3:
+            case calendar:
                 bottom_bar_image_calendar.setImageResource(R.drawable.calendar_button_selected);
                 bottom_bar_text_calendar.setTextColor(Color.parseColor("#0097f7"));
                 break;
+            case map:
+                bottom_bar_image_map.setImageResource(R.drawable.map_button_selected);
+                bottom_bar_text_map.setTextColor(Color.parseColor("#0097f7"));
+                break;
+            case setting:
+                bottom_bar_text_setting.setTextColor(Color.parseColor("#0097f7"));
+                break;
+
         }
     }
 
@@ -375,10 +388,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bottom_bar_text_movie.setTextColor(Color.parseColor("#666666"));
         bottom_bar_text_event.setTextColor(Color.parseColor("#666666"));
         bottom_bar_text_calendar.setTextColor(Color.parseColor("#666666"));
+        bottom_bar_text_setting.setTextColor(Color.parseColor("#666666"));
+        bottom_bar_text_map.setTextColor(Color.parseColor("#666666"));
 
         bottom_bar_image_movie.setImageResource(R.drawable.movie_button);
         bottom_bar_image_event.setImageResource(R.drawable.event_button);
         bottom_bar_image_calendar.setImageResource(R.drawable.calendar_button);
+        bottom_bar_image_map.setImageResource(R.drawable.map_button);
     }
 
     @Override

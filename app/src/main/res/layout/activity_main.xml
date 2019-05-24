@@ -142,6 +142,34 @@
             android:id="@+id/bottom_bar_image_map"
             android:src="@drawable/map_button"/>
     </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/bottom_bar_btn_setting">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/bottom_bar_text_setting"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="3dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="Setting"
+                android:textColor="#666666"
+                android:textSize="14sp"/>
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_above="@+id/bottom_bar_text_setting"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="3dp"
+                android:id="@+id/bottom_bar_image_setting"
+                android:src="@drawable/setting_button"/>
+        </RelativeLayout>
     </LinearLayout>
 
 </RelativeLayout>

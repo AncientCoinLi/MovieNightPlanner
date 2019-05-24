@@ -20,6 +20,7 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import au.edu.rmit.movienightplanner.MainActivity;
 import au.edu.rmit.movienightplanner.model.DAO;
@@ -60,17 +61,17 @@ public class EditEventFragment extends Fragment {
     }
 
     private void init(View view) {
-        title = (EditText) view.findViewById(R.id.edit_input_title);
-        startDate = (EditText) view.findViewById(R.id.edit_input_start_date);
-        endDate = (EditText) view.findViewById(R.id.edit_input_end_date);
-        venue = (EditText) view.findViewById(R.id.edit_input_venue);
-        locationX = (EditText) view.findViewById(R.id.edit_input_location_x);
-        locationY = (EditText) view.findViewById(R.id.edit_input_location_y);
-        attendees = (ListView) view.findViewById(R.id.edit_attendee_list);
-        candidates = (Spinner) view.findViewById(R.id.edit_event_candidate);
-        save = (Button) view.findViewById(R.id.edit_input_btn_save);
-        add = (Button)view.findViewById(R.id.edit_event_btn_add_attendee);
-        remove = (Button) view.findViewById(R.id.edit_event_btn_remove_attendee);
+        title = view.findViewById(R.id.edit_input_title);
+        startDate = view.findViewById(R.id.edit_input_start_date);
+        endDate = view.findViewById(R.id.edit_input_end_date);
+        venue = view.findViewById(R.id.edit_input_venue);
+        locationX = view.findViewById(R.id.edit_input_location_x);
+        locationY = view.findViewById(R.id.edit_input_location_y);
+        attendees = view.findViewById(R.id.edit_attendee_list);
+        candidates = view.findViewById(R.id.edit_event_candidate);
+        save = view.findViewById(R.id.edit_input_btn_save);
+        add = view.findViewById(R.id.edit_event_btn_add_attendee);
+        remove = view.findViewById(R.id.edit_event_btn_remove_attendee);
 
         Event event = DAO.getCurrentEvent();
         title.setText(event.getTitle());
@@ -86,12 +87,12 @@ public class EditEventFragment extends Fragment {
 
     public void initAttendees() {
         allContacts = new ArrayList<>();
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,
-                                           allContacts);
+        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,
+                                     allContacts);
         candidates.setAdapter(adapter);
 
-        attendeeAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,
-                                                                        DAO.getCurrentEvent().getAttendees());
+        attendeeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,
+                                             DAO.getCurrentEvent().getAttendees());
         attendees.setAdapter(attendeeAdapter);
 
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -174,7 +175,7 @@ public class EditEventFragment extends Fragment {
                                  endDate.getText().toString(),
                                  venue.getText().toString(), locationX.getText().toString(),
                                  locationY.getText().toString());
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_body, new EventFragment()).commit();
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().replace(R.id.main_body, new EventFragment()).commit();
                     ((MainActivity) getActivity()).setSelectedStatus(2);
                 }
             });

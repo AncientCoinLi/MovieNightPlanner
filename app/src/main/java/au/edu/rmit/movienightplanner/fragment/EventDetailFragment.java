@@ -15,15 +15,6 @@ import au.edu.rmit.movienightplanner.R;
 
 public class EventDetailFragment extends Fragment {
 
-    private TextView title;
-    private TextView startDate;
-    private TextView endDate;
-    private TextView venue;
-    private TextView locationX;
-    private TextView locationY;
-    private TextView attendee;
-    private TextView movie;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -39,14 +30,14 @@ public class EventDetailFragment extends Fragment {
 
     private void init(View view) {
         Event event = DAO.getCurrentEvent();
-        title = (TextView) view.findViewById(R.id.event_detail_title);
-        startDate = (TextView) view.findViewById(R.id.event_detail_start_date);
-        endDate = (TextView) view.findViewById(R.id.event_detail_end_date);
-        venue = (TextView) view.findViewById(R.id.event_detail_venue);
-        locationX = (TextView) view.findViewById(R.id.event_detail_location_x);
-        locationY = (TextView) view.findViewById(R.id.event_detail_location_y);
-        movie = (TextView) view.findViewById(R.id.event_detail_movie);
-        attendee = (TextView) view.findViewById(R.id.event_detail_attendee);
+        TextView title = view.findViewById(R.id.event_detail_title);
+        TextView startDate = view.findViewById(R.id.event_detail_start_date);
+        TextView endDate = view.findViewById(R.id.event_detail_end_date);
+        TextView venue = view.findViewById(R.id.event_detail_venue);
+        TextView locationX = view.findViewById(R.id.event_detail_location_x);
+        TextView locationY = view.findViewById(R.id.event_detail_location_y);
+        TextView movie = view.findViewById(R.id.event_detail_movie);
+        TextView attendee = view.findViewById(R.id.event_detail_attendee);
 
         title.setText(event.getTitle());
         startDate.setText(event.getStartDateString());

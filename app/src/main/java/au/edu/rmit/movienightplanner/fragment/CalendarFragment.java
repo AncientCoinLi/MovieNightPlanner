@@ -74,16 +74,16 @@ public class CalendarFragment extends Fragment {
     }
 
     private void init() {
-        gridView = (GridView) getView().findViewById(R.id.calendar_grid_view);
-        calendarDate = (TextView) getView().findViewById(R.id.calendar_date);
+        gridView = getView().findViewById(R.id.calendar_grid_view);
+        calendarDate = getView().findViewById(R.id.calendar_date);
         Date date = new Date(System.currentTimeMillis());
         simpleDateFormat = new SimpleDateFormat("M / yyyy");
         calendarDate.setText(simpleDateFormat.format(date));
         list = new ArrayList<>();
         adapter = new ArrayAdapter<String>(getContext(), R.layout.calendar_item, R.id.item_text, list);
         gridView.setAdapter(adapter);
-        prev = (Button) getView().findViewById(R.id.fragment_calendar_btn_prev);
-        next = (Button) getView().findViewById(R.id.fragment_calendar_btn_next);
+        prev = getView().findViewById(R.id.fragment_calendar_btn_prev);
+        next = getView().findViewById(R.id.fragment_calendar_btn_next);
         HashMap<Integer, Event> events = Utils.updateCalendar(Calendar.getInstance(), list,
                                                               adapter);
     }

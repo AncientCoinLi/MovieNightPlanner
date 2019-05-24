@@ -33,7 +33,8 @@ public class NotificationJobService extends JobService {
 
     public static final String CHANNEL_ID = "channel id";
     private static final String CHANNEL_NAME = "channel name";
-    private static final int ONE_HOUR = 3600;
+    private static final int ONE_HOUR_DISTANCE = 3600;
+    private static final int THRESHOLD_IN_MILLIS = DAO.getNotificationThresholdMillis();
     private final int RemindLater = 0;
     private final int Dismiss = 1;
     private final int Cancel = 2;
@@ -63,27 +64,28 @@ public class NotificationJobService extends JobService {
     @Override
     public void onCreate() {
         initialise();
-        doService();
     }
 
 
     private NotificationCompat.Builder getNotification(Event event) {
-        String title = "Notification";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationJobService.this,
+        String title = event.getTitle() + " is coming soon";
+        String content = "Starts on " + event.getStartDateString();
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(NotificationJobService.this,
                                                                             CHANNEL_ID)
                 .setContentTitle(title)
-                .setContentText(event.getTitle())
+                .setContentText(content)
                 .setSmallIcon(R.drawable.notification_bg)
                 .setTicker("You Have a Notification")
                 .setAutoCancel(true);
-
 
         Intent dismissIntent = new Intent();
         dismissIntent.putExtra("action", 1);
         dismissIntent.putExtra("event", event.getId());
         dismissIntent.setAction(DISMISS);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                                                                        1, dismissIntent,
+                                                                        Integer.parseInt(event.getId()),
+                                                                        dismissIntent,
                                                                         PendingIntent.FLAG_UPDATE_CURRENT);
         builder.addAction(R.drawable.notification_bg, "Dismiss", dismissPendingIntent);
 
@@ -91,7 +93,8 @@ public class NotificationJobService extends JobService {
         cancelIntent.putExtra("action", 2);
         cancelIntent.putExtra("event", event.getId());
         cancelIntent.setAction(CANCEL);
-        PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(this, 2, cancelIntent,
+        PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                                                                       Integer.parseInt(event.getId()), cancelIntent,
                                                                        PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.addAction(R.drawable.notification_bg, "Cancel", cancelPendingIntent);
@@ -100,7 +103,8 @@ public class NotificationJobService extends JobService {
         remindLaterIntent.putExtra("action", 0);
         remindLaterIntent.putExtra("event", event.getId());
         remindLaterIntent.setAction(REMIND_LATER);
-        PendingIntent remindLaterPendingIntent = PendingIntent.getBroadcast(this, 0,
+        PendingIntent remindLaterPendingIntent = PendingIntent.getBroadcast(this,
+                                                                            Integer.parseInt(event.getId()),
                                                                             remindLaterIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.addAction(R.drawable.notification_bg, "Remind Later", remindLaterPendingIntent);
 
@@ -124,20 +128,23 @@ public class NotificationJobService extends JobService {
     private void doService() {
         System.out.println("FUTURE EVENT SIZE = "+futureEvents.size());
         distance = new Distance(this.futureEvents);
-        System.out.println("DO SERVICE");
         createChannel();
         Calendar currentCalendar = Calendar.getInstance();
         currentCalendar.setTimeInMillis(System.currentTimeMillis());
         Calendar startCalendar = Calendar.getInstance();
 
         try {
-            System.out.println("BEFORE DISTANCE");;
             HashMap<Event, Integer> eventDistance = distance.execute(getApplicationContext()).get();
-            System.out.println("AFTER DISTANCE " + eventDistance.size());
             for (int i = 0; i < futureEvents.size(); i++) {
                 startCalendar.setTime(futureEvents.get(i).getStartDate());
-                if (startCalendar.get(Calendar.MINUTE) - currentCalendar.get(Calendar.MINUTE) <= DAO.getNotificationThreshold() + DAO.NotificationInAdvance){
-                    if (eventDistance.get(futureEvents.get(i)) >= ONE_HOUR) {
+                long timeLeft = startCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+                System.out.println(timeLeft);
+                System.out.println("Start Time = "+startCalendar.getTimeInMillis() +"  " +
+                                           "Current Time = "+ currentCalendar.getTimeInMillis());
+
+                if (timeLeft <= THRESHOLD_IN_MILLIS){
+
+                    if (eventDistance.get(futureEvents.get(i)) >= ONE_HOUR_DISTANCE) {
                         NotificationCompat.Builder builder = getNotification(futureEvents.get(i));
                         Intent intent = new Intent(NotificationJobService.this, MainActivity.class);
                         intent.putExtra("event", futureEvents.get(i).getId());
@@ -146,13 +153,13 @@ public class NotificationJobService extends JobService {
                         PendingIntent resultPendingIntent =
                                 PendingIntent.getActivity(this, Integer.parseInt(futureEvents.get(i).getId()), intent,
                                                           PendingIntent.FLAG_UPDATE_CURRENT);
-                        builder.setNumber(5);
                         builder.setAutoCancel(true);
                         builder.setContentIntent(resultPendingIntent);
+
                         NotificationManager mNotificationManager =
                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         mNotificationManager.notify(Integer.parseInt(futureEvents.get(i).getId()), builder.build());
-                        break;
+                        //break;
                     }
                 }
             }

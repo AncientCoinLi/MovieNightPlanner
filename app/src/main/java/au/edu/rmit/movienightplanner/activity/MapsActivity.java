@@ -25,7 +25,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -47,15 +46,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         int count = 3;
         if(futureEvents.size() < 3) count = futureEvents.size();
+        LatLng latLng;
         for (int i = 0; i < count; i++) {
-            LatLng target = new LatLng(Double.parseDouble(futureEvents.get(i).getLocation()[0]),
+            latLng = new LatLng(Double.parseDouble(futureEvents.get(i).getLocation()[0]),
                                        Double.parseDouble(futureEvents.get(i).getLocation()[1]));
-            mMap.addMarker(new MarkerOptions().position(target).title(futureEvents.get(i).getTitle()));
+            System.out.println(futureEvents.get(i).getTitle() + " --> add marker");;
+            mMap.addMarker(new MarkerOptions().position(latLng).title(futureEvents.get(i).getTitle()));
         }
-
-        // Add a marker in Melbourne and move the camera
         LatLng melbourne = new LatLng(-37.8136, 144.9631);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(melbourne));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(melbourne, 10));
+        //mMap.addMarker(new MarkerOptions().position(melbourne).title("MEL"));
     }
 }

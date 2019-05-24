@@ -21,16 +21,12 @@ import au.edu.rmit.movienightplanner.model.Event;
 public class EventFragment extends Fragment {
 
     private LinearLayout eventList;
-    private Button scheduelEvent;
-    private Button order;
-
-    private EditEventFragment editEventFragment;
 
 
     private void init() {
-        eventList = (LinearLayout) getView().findViewById(R.id.event_list);
-        scheduelEvent = (Button) getView().findViewById(R.id.event_btn_schedule);
-        scheduelEvent.setOnClickListener(new View.OnClickListener() {
+        eventList = getView().findViewById(R.id.event_list);
+        Button scheduleEvent = getView().findViewById(R.id.event_btn_schedule);
+        scheduleEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_body, new ScheduleEventFragment()).commit();
@@ -38,7 +34,7 @@ public class EventFragment extends Fragment {
             }
         });
 
-        order = (Button) getView().findViewById(R.id.event_order);
+        Button order = getView().findViewById(R.id.event_order);
         order.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -47,7 +43,7 @@ public class EventFragment extends Fragment {
             }
         });
 
-        editEventFragment = new EditEventFragment();
+        EditEventFragment editEventFragment = new EditEventFragment();
     }
 
 
@@ -71,12 +67,12 @@ public class EventFragment extends Fragment {
         List<Event> events = DAO.getSortedEvent();
         View eventView;
         if (DAO.isAscending()) {
-            for (int i = 0; i < events.size(); i++) {
+            for (int i = events.size()-1; i >= 0; i--) {
                 eventView = createEventView(events.get(i));
                 eventList.addView(eventView, 0);
             }
         }else {
-            for (int i = events.size()-1; i >= 0; i--) {
+            for (int i = 0; i < events.size(); i++) {
                 eventView = createEventView(events.get(i));
                 eventList.addView(eventView, 0);
             }
@@ -101,16 +97,13 @@ public class EventFragment extends Fragment {
         LinearLayout.LayoutParams eventInfoLayoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        //eventInfoLayoutParams.setMarginStart(Utils.dp2px(getContext(),60));
         eventInfoLinearLayout.setLayoutParams(eventInfoLayoutParams);
         eventInfoLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        //eventInfoLinearLayout.setGravity(Gravity.CENTER);
 
         TextView title = new TextView(getContext());
         title.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         title.setTextSize(20);
         title.setTextColor(Color.BLUE);
-        //title.setText("Title:            "+event.getTitle());
         title.setText(event.getTitle());
         TextView startDate = new TextView(getContext());
         startDate.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);

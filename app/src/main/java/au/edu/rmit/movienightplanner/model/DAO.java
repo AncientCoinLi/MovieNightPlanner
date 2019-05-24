@@ -2,14 +2,22 @@ package au.edu.rmit.movienightplanner.model;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.Environment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import au.edu.rmit.movienightplanner.MainActivity;
 import au.edu.rmit.movienightplanner.R;
 import au.edu.rmit.movienightplanner.database.Database;
 
@@ -73,23 +82,54 @@ public class DAO {
     }
 
     private static void readSettings(Resources resources) {
-        InputStream inputStream = resources.openRawResource(configurationResource);
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuffer stringBuffer = new StringBuffer();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuffer.append(line + System.lineSeparator());
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+        File setting = new File(path + "/data/data/setting");
+        if(setting.exists()){
+            try {
+                FileInputStream fileInputStream = new FileInputStream(setting);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+                StringBuffer stringBuffer = new StringBuffer();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuffer.append(line + System.lineSeparator());
+                }
+                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
+                CheckPeriod = jsonObject.getInt("notification period");
+                RemindAgainDuration = jsonObject.getInt("remind again duration");
+                NotificationThreshold = jsonObject.getInt("notification threshold");
+                bufferedReader.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            JSONObject jsonObject = new JSONObject(stringBuffer.toString());
-            CheckPeriod = jsonObject.getInt("notification period");
-            RemindAgainDuration = jsonObject.getInt("remind again duration");
-            NotificationThreshold = jsonObject.getInt("notification threshold");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        }else{
+            InputStream inputStream = resources.openRawResource(configurationResource);
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuffer stringBuffer = new StringBuffer();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuffer.append(line + System.lineSeparator());
+                }
+                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
+                CheckPeriod = jsonObject.getInt("notification period");
+                RemindAgainDuration = jsonObject.getInt("remind again duration");
+                NotificationThreshold = jsonObject.getInt("notification threshold");
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+
+
+
+
     }
 
     /*
@@ -118,7 +158,6 @@ public class DAO {
                 }
             }
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,7 +170,7 @@ public class DAO {
             String line;
             String[] content;
             String id, title, startDate, endDate, venue;
-            String[] location = new String[2];
+            String[] location;
 
             // Id, Title, Start Date, End Date, Venue, Location (latitude/longitude)
             while ((line = bufferedReader.readLine()) != null) {
@@ -143,11 +182,13 @@ public class DAO {
                     startDate = content[2];
                     endDate = content[3];
                     venue = content[4];
+                    location = new String[2];
                     location[0] = content[5];
                     location[1] = content[6];
                     events.put(id, new EventImpl(id, title, startDate, endDate, venue, location));
                 }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -244,8 +285,8 @@ public class DAO {
                     Date e1 = MovieNightPlannerDateFormat.dateFormat.parse(o1.getStartDateString());
                     Date e2 = MovieNightPlannerDateFormat.dateFormat.parse(o2.getStartDateString());
                     if (e1.before(e2)) {
-                        return 1;
-                    } else return -1;
+                        return -1;
+                    } else return 1;
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -325,5 +366,44 @@ public class DAO {
 
     public static boolean isDismissEvent(Event event) {
         return dismissEvents.contains(event);
+    }
+
+    public static int getNotificationThresholdMillis() {
+        return NotificationThreshold;
+    }
+
+    public static void saveSettings(int remind, int period, int threshold) {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+        DAO.NotificationThreshold = threshold;
+        DAO.CheckPeriod = period;
+        DAO.RemindAgainDuration = remind;
+        File setting = new File(path + "/data/data/setting");
+        File d = new File(path + "/data/data/");
+        d.mkdirs();
+        if(setting.exists()) {
+            setting.delete();
+        }
+        try {
+
+            setting.createNewFile();
+            FileOutputStream fileOutputStream = new FileOutputStream(setting);
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
+            JSONObject jsonObject = new JSONObject();
+            String string = String.format(
+                    "{\"notification period\": \"%d\"," +
+                            "    \"notification threshold\": \"%d\"," +
+                            "    \"remind again duration\": \"%d\"" +
+                            "}",
+                    period, threshold, remind);
+            bufferedWriter.append(string);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

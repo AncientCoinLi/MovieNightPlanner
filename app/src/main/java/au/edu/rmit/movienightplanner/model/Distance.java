@@ -41,9 +41,6 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
     private Location getCurrentLocation(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = locationManager.getProviders(true);
-        for (String s : providers) {
-            System.out.println(s);
-        }
         String locationProvider = null;
         if (providers.contains(LocationManager.GPS_PROVIDER)) {
             locationProvider = LocationManager.GPS_PROVIDER;
@@ -57,7 +54,6 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
                                                                                         0,intent,
                                                                                         0));
         Location location = locationManager.getLastKnownLocation(locationProvider);
-        System.out.println("location == null "+(location == null) );
         return location;
     }
 
@@ -83,7 +79,6 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
         try{
             for (Event event : events) {
                 currLocation = getCurrentLocation(contexts[0]);
-                if (currLocation == null) System.out.println("CURRENT LOCATION NULL");
                 double latitude = 0;
                 double longitude = 0;
                 if (currLocation != null) {
@@ -97,6 +92,8 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
                                 "&mode=driving&key=%s",
                         currLocationString, event.getLocationString(),
                         API_KEY);
+
+                System.out.println(event.getTitle() + " "+event.getLocationString());
                 System.out.println(urlString);
                 URL url = new URL(urlString);
                 httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -108,14 +105,11 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
                 while ((result = bufferedReader.readLine()) != null) {
                     sb.append(result + System.lineSeparator());
                 }
-                //System.out.println(sb.toString().trim());
                 JSONObject jsonObject = new JSONObject(sb.toString());
                 int duration = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray(
                         "elements").getJSONObject(0).getJSONObject("duration").getInt("value");
-                System.out.println("DURATION = " + duration);
                 httpURLConnection.disconnect();
                 eventDistance.put(event, duration);
-                System.out.println(event.getTitle() + " "+ duration);
             }
             return eventDistance;
         } catch (MalformedURLException e) {
@@ -123,12 +117,8 @@ public class Distance extends AsyncTask<Context, Void, HashMap<Event, Integer>> 
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } catch (JSONException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
-
-
-
-
         return null;
     }
 }

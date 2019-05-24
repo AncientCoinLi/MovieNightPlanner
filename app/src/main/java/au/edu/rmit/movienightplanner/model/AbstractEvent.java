@@ -32,6 +32,9 @@ public abstract class AbstractEvent implements Event {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+            System.out.println("Event Constructor : " + this.title+" "+ location[0] + "," +location[1]);
+
+
 
     }
 
