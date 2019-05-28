@@ -34,7 +34,7 @@ public class NotificationJobService extends JobService {
     public static final String CHANNEL_ID = "channel id";
     private static final String CHANNEL_NAME = "channel name";
     private static final int ONE_HOUR_DISTANCE = 3600;
-    private static final int THRESHOLD_IN_MILLIS = DAO.getNotificationThresholdMillis();
+    private static int THRESHOLD_IN_MILLIS = DAO.getNotificationThresholdMillis();
     private final int RemindLater = 0;
     private final int Dismiss = 1;
     private final int Cancel = 2;
@@ -188,6 +188,7 @@ public class NotificationJobService extends JobService {
     }
 
     private void initialise() {
+        THRESHOLD_IN_MILLIS = DAO.getNotificationThresholdMillis();
         futureEvents = new ArrayList<>();
         for(Event event: DAO.getFutureEvents()){
             futureEvents.add(event);
