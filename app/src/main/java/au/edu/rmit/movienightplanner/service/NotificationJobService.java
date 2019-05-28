@@ -144,7 +144,7 @@ public class NotificationJobService extends JobService {
 
                 if (timeLeft <= THRESHOLD_IN_MILLIS){
 
-                    if (eventDistance.get(futureEvents.get(i)) >= ONE_HOUR_DISTANCE) {
+                    //if (eventDistance.get(futureEvents.get(i)) >= ONE_HOUR_DISTANCE) {
                         NotificationCompat.Builder builder = getNotification(futureEvents.get(i));
                         Intent intent = new Intent(NotificationJobService.this, MainActivity.class);
                         intent.putExtra("event", futureEvents.get(i).getId());
@@ -160,7 +160,7 @@ public class NotificationJobService extends JobService {
                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         mNotificationManager.notify(Integer.parseInt(futureEvents.get(i).getId()), builder.build());
                         //break;
-                    }
+                    //}
                 }
             }
         } catch (ExecutionException e) {
