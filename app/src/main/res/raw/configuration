@@ -1,5 +1,5 @@
 {
     "notification period": "600000",
-    "notification threshold": "3600000",
+    "notification threshold": "7200000",
     "remind again duration": "600000"
 }

@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         registerNotificationReceiver();
         registerNavigationReceiver();
         initPermission();
+        System.out.println(DAO.getCheckPeriod());
     }
 
     private void registerNavigationReceiver() {

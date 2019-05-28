@@ -2,6 +2,7 @@ package au.edu.rmit.movienightplanner.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import au.edu.rmit.movienightplanner.MainActivity;
 import au.edu.rmit.movienightplanner.R;
 import au.edu.rmit.movienightplanner.fragment.EditEventFragment;
 import au.edu.rmit.movienightplanner.model.DAO;
@@ -64,6 +66,23 @@ public class SettingsActivity extends Activity {
                 int threshold = Integer.parseInt(notification_thredshold.getText().toString()) * 60000;
                 DAO.saveSettings(remind, period, threshold);
                 Toast.makeText(getApplicationContext(), "Settings are saved", Toast.LENGTH_SHORT).show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(true){
+                            try {
+                                Thread.sleep(DAO.getRemindAgainDuration());
+                                Intent intent1 = new Intent();
+                                intent1.setAction(MainActivity.UPDATE_ACTION);
+                                intent1.putExtra("type", MainActivity.CHECK_SERVICE);
+                                getApplicationContext().sendBroadcast(intent1);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }).start();
             }
         });
 

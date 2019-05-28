@@ -406,4 +406,8 @@ public class DAO {
         }
 
     }
+
+    public static List<Event> getDismissEvents(){
+        return dismissEvents;
+    }
 }

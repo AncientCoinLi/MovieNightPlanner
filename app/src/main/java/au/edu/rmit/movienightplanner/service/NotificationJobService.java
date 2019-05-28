@@ -177,6 +177,7 @@ public class NotificationJobService extends JobService {
 
     public void dismiss(Event event) {
         futureEvents.remove(event);
+        DAO.addDismissEvent(event);
     }
 
     public void cancel(final Event event) {
@@ -187,7 +188,11 @@ public class NotificationJobService extends JobService {
     }
 
     private void initialise() {
-        futureEvents = DAO.getFutureEvents();
+        futureEvents = new ArrayList<>();
+        for(Event event: DAO.getFutureEvents()){
+            futureEvents.add(event);
+        }
+        futureEvents.removeAll(DAO.getDismissEvents());
     }
 
     public static NotificationJobService getInstance() {
